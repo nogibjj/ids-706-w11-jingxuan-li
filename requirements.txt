@@ -16,3 +16,4 @@ databricks
 pyspark
 requests
 tabulate
+python-dotenv
