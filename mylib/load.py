@@ -1,4 +1,8 @@
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, FloatType
+from pyspark.sql.types import (StructType, 
+                               StructField, 
+                               IntegerType, 
+                               StringType, 
+                               FloatType)
 from pyspark.sql.functions import when, col
 from pyspark.sql import SparkSession
 
@@ -23,11 +27,11 @@ def load_data(spark, file_path, name="BestRestaurants"):
     df.createOrReplaceGlobalTempView(name)
     print(f"Global temporary table '{name}' registered successfully")
     print("load data successfully")
-    display(df.limit(10))
+    print(df.limit(10))
     return df
 
 def describe(df):
-    display(df.describe())
+    print(df.describe())
     return df.describe()
 
 def example_transform(df):
@@ -41,7 +45,7 @@ def example_transform(df):
         conditions[0], categories[0]
         ).when(conditions[1], categories[1]).otherwise("Other"))
     print("transform data finished")
-    display(df.limit(10))
+    print(df.limit(10))
     return df
 
 def main():
