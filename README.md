@@ -2,7 +2,7 @@
 ### Data Processing with PySpark
 
 #### Project Overview
-This project involves data processing using PySpark to analyze and transform a dataset of the world's best restaurants.  The project includes functions for loading data, performing transformations, and running SQL queries using Spark SQL.
+This project involves data processing using PySpark to analyze and transform a dataset of the world's best restaurants.  T he project includes functions for loading data, performing transformations, and running SQL queries using Spark SQL.
 
 #### File Structure
 - `mylib/lib.py`: Contains the main functions for data processing, including data loading, describing, transformations, and querying.
