@@ -13,6 +13,7 @@ The workflow is automated using **Databricks Jobs** and **GitHub Actions** for C
 
 ## Databricks Setup
 Follow these steps to set up and run the pipeline in Databricks:
+### 0. Create a Databricks workspace on Azure.
 
 ### 1. Setting Up a Cluster
 - Navigate to the **Compute** section in Databricks.
@@ -22,7 +23,7 @@ Follow these steps to set up and run the pipeline in Databricks:
 ### 2. Connecting to GitHub
 - Navigate to the **Workspace** tab.
 - Create a new Git folder and link it to your repository:
-  - Example Repository: `https://github.com/<your-repo>.git`
+  - Example Repository: `https://github.com/nogibjj/ids-706-w11-jingxuan-li.git`
 
 ### 3. Installing Required Libraries
 - **pyspark**: Pre-installed in Databricks clusters.
