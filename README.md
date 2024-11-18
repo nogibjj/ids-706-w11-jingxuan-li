@@ -1,69 +1,139 @@
-[![CI](https://github.com/nogibjj/ids-706-w10-jingxuan-li/actions/workflows/cicd.yml/badge.svg)](https://github.com/nogibjj/ids-706-w10-jingxuan-li/actions/workflows/cicd.yml)
+![image](https://github.com/user-attachments/assets/f1edc01e-c6f3-4078-a166-5e8116db3ec8)[![CI](https://github.com/nogibjj/ids-706-w11-jingxuan-li/actions/workflows/cicd.yml/badge.svg)](https://github.com/nogibjj/ids-706-w11-jingxuan-li/actions/workflows/cicd.yml)
 ### Data Processing with PySpark
+#Data Analysis Pipeline with Databricks
 
-#### Project Overview
-This project involves data processing using PySpark to analyze and transform a dataset of the world's best restaurants.  T he project includes functions for loading data, performing transformations, and running SQL queries using Spark SQL.
+## Overview
+This project demonstrates a Databricks pipeline for managing and analyzing restaurant data using Spark. The pipeline is broken into three steps:
 
-#### File Structure
-- `mylib/lib.py`: Contains the main functions for data processing, including data loading, describing, transformations, and querying.
-- `main.py`: A script that imports and executes the functions defined in `mylib/lib.py` to perform data analysis and transformations.
-- `data/WorldBestRestaurants.csv`: csv file
-- `test_main.py`: A `pytest`-based test suite for validating the functionality in `mylib/lib.py`.
-- `pyspark_output.md`: generated output report for the main.py
+1. **Extract**: Reads raw data from a publicly accessible CSV file.
+2. **Load and Transform**: Processes the data, including loading and transformations like categorizing restaurants and saving results in Delta format.
+3. **Query**: Performs SQL queries to analyze the transformed data.
 
-#### Functionality
-1. **Data Processing Functionality**
-   - **Loading Data**: The `load_data()` function loads a CSV file into a PySpark DataFrame with a predefined schema to ensure correct data types and structure.
-   - **Descriptive Statistics**: The `describe()` function computes and logs basic statistics (e.g., mean, standard deviation) for each numerical column in the DataFrame.
-   - **Logging**: The `log_output()` function writes the operation details and output to a markdown file, `pyspark_output.md`, for review.
+The workflow is automated using **Databricks Jobs** and **GitHub Actions** for CI/CD.
 
-2. **Use of Spark SQL and Transformations**
-   - **SQL Queries**: The `query()` function allows you to run SQL queries on the DataFrame by creating a temporary SQL view. The output is logged and displayed.
-   - **Data Transformations**: The `example_transform()` function performs data transformations using conditional logic to categorize restaurants based on their country and ranking.
-   - **Spark SQL Example**:
-     ```python
-     sample_query = """
-     SELECT `Restaurant`, Country, Rank
-     FROM BestRestaurants
-     WHERE Rank < 20
-     ORDER BY Rank ASC
-     """
-     query(spark, df, sample_query, "BestRestaurants")
+## Databricks Setup
+Follow these steps to set up and run the pipeline in Databricks:
+
+### 1. Setting Up a Cluster
+- Navigate to the **Compute** section in Databricks.
+- Click **Create Cluster** and configure it with default settings.
+- Start the cluster.
+
+### 2. Connecting to GitHub
+- Navigate to the **Workspace** tab.
+- Create a new Git folder and link it to your repository:
+  - Example Repository: `https://github.com/<your-repo>.git`
+
+### 3. Installing Required Libraries
+- **pyspark**: Pre-installed in Databricks clusters.
+- Ensure any additional libraries are installed via `requirements.txt` or manually in the Databricks cluster.
+
+### 4. Creating Jobs
+- Navigate to the **Jobs** tab and create jobs for each pipeline step:
+  - **Extract**: Runs the `extract.py` script.
+  - **load_and_Transform**: Runs the `load.py` script.
+  - **Query**: Runs the `query.py` script.
+     ![image](https://github.com/user-attachments/assets/4d49c7ed-e1e3-488f-adb2-766e2c4661a9)
+
+
+- **Task Dependencies**:
+  - Set `Transform` to depend on `Extract`.
+  - Set `Query` to depend on `load_and_Transform`.
+
+---
+
+## Data Source and Sink
+
+### Data Source
+The pipeline uses a publicly accessible CSV file:
+- **URL**: `https://raw.githubusercontent.com/nogibjj/ids-706-w11-jingxuan-li/main/data/WorldsBestRestaurants.csv`
+
+### Data Sink
+The outputs of each pipeline stage are stored in **Delta format** for scalability:
+- **Extracted Data**: `dbfs:/FileStore/ids-706-w11-jingxuan-li/WorldsBestRestaurants.csv`
+- **Transformed Data**: `dbfs:/FileStore/ids-706-w11-jingxuan-li/BestRestaurants`
+
+---
+
+## Pipeline Workflow
+
+### **Pipeline Overview**
+This project follows an **ETL (Extract, Transform, Load)** process to analyze restaurant data:
+
+1. **Extract**:
+   - Reads data from the source URL.
+   - Saves raw data in Delta format at `dbfs:/FileStore/ids-706-w11-jingxuan-li/WorldsBestRestaurants.csv`.
+
+2. **Transform**:
+   - Categorizes restaurants (e.g., based on country or rank).
+   - Saves transformed data in Delta format at `dbfs:/FileStore/ids-706-w11-jingxuan-li/BestRestaurants`.
+
+3. **Query**:
+   - Executes SQL queries to filter and group the transformed data for analysis.
+
+### **Task Dependencies**
+Each step is executed sequentially:
+- `Transform` depends on `Extract`.
+- `Query` depends on `Transform`.
+
+This ensures that downstream tasks operate on consistent data outputs from upstream steps.
+
+---
+
+## CI/CD Setup
+
+### **Workflow Configuration**
+The CI/CD pipeline is implemented using GitHub Actions and performs the following steps:
+1. Installs required dependencies.
+2. Lints and formats the code.
+3. Runs tests to validate functionality.
+4. Sets up environment variables for secure Databricks access.
+5. Executes the Databricks jobs.
+
+### **Environment Setup in GitHub**
+Secrets are configured in GitHub to securely connect to Databricks:
+
+1. Go to your GitHub repository.
+2. Navigate to **Settings > Secrets and variables > Actions**.
+3. Add the following secrets:
+   - `SERVER_HOSTNAME`: Databricks server hostname.
+   - `ACCESS_TOKEN`: Personal access token for Databricks.
+
+---
+
+## How to Run Locally
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/<your-repo>.git
+   cd <your-repo>
+   ```
+2. Set up a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Add a `.env` file with the following content:
+   ```
+   SERVER_HOSTNAME=https://<databricks-instance>.azuredatabricks.net
+   ACCESS_TOKEN=<your-access-token>
+   ```
+
+5. Run the pipeline steps:
+   - **Extract**:
+     ```bash
+     python extract.py
      ```
-     This query retrieves restaurants ranked in the top 20, ordered by their rank.
+   - **Transform**:
+     ```bash
+     python load.py
+     ```
+   - **Query**:
+     ```bash
+     python query.py
+     ```
 
-#### Usage
-1. **Setup**:
-   - Use GitHub Codespaces to open
-   - wait for environment to be installed
-
-2. **Installation**
-
-Install the required packages using `pip`:
-```bash
-make install
-```
-
-3. **Run the Main Script**:
-   ```bash
-   python main.py
-   ```
-   This will load the data, print descriptive statistics, apply transformations, and run an SQL query.
-
-4. **Run Tests**:
-   Execute the test suite to validate the functions:
-   ```bash
-   make test
-   ```
-   ![image](https://github.com/user-attachments/assets/fe540995-fdeb-407f-b409-e0f7f1080ccf)
-
-
-#### Project Components
-- **Data Loading**: Reads the CSV data with a structured schema using `load_data()`.
-- **Descriptive Statistics**: The `describe()` function provides an overview of data distributions.
-- **Transformations**: The `example_transform()` function categorizes rows based on specific conditions.
-- **SQL Queries**: The `query()` function runs SQL commands to filter and sort the data.
-
-#### Example Output
-- **Log File**: The `pyspark_output.md` will contain the outputs of each operation in markdown format for easy review.
-- **Console**: The console will display outputs using `.show()` for immediate feedback.
+---
